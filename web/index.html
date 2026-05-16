@@ -3,88 +3,360 @@
   <head>
     <meta charset="utf-8" />
     <title>Calculator</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-      crossorigin="anonymous"
-    />
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="constants.js"></script>
     <style>
+      :root {
+        color-scheme: light;
+        --bg-1: #f7f1e8;
+        --bg-2: #f4d7c4;
+        --bg-3: #d7e8e3;
+        --ink: #152028;
+        --muted: #5f6d73;
+        --panel: rgba(255, 255, 255, 0.88);
+        --border: rgba(21, 32, 40, 0.12);
+        --accent: #0b7285;
+        --accent-strong: #09515f;
+      }
+
       html {
         position: relative;
+        min-height: 100%;
       }
 
       body {
-        background: #ffffff;
+        min-height: 100vh;
         margin: 0;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(11, 114, 133, 0.18), transparent 34%),
+          radial-gradient(circle at top right, rgba(215, 232, 227, 0.92), transparent 28%),
+          linear-gradient(135deg, var(--bg-1), var(--bg-2) 48%, var(--bg-3));
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image: linear-gradient(rgba(21, 32, 40, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(21, 32, 40, 0.03) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 88%);
       }
 
       main {
+        display: flex;
+        justify-content: center;
+        padding: 48px 20px 64px;
+      }
+
+      .calculator-shell {
+        width: min(760px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: 0 24px 80px rgba(21, 32, 40, 0.16);
+        backdrop-filter: blur(18px);
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 28px 28px 22px;
+        background: linear-gradient(135deg, rgba(11, 114, 133, 0.14), rgba(11, 114, 133, 0));
+        border-bottom: 1px solid var(--border);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.78rem;
+        color: var(--accent-strong);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.05;
+      }
+
+      .subtext {
+        margin: 12px 0 0;
+        max-width: 58ch;
+        color: var(--muted);
+      }
+
+      .content {
+        padding: 28px;
+        display: grid;
+        gap: 24px;
+      }
+
+      .controls,
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.72);
         padding: 20px;
       }
-      .main-column {
-        margin-bottom: 100px;
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
       }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid rgba(21, 32, 40, 0.18);
+        border-radius: 14px;
+        padding: 14px 16px;
+        font: inherit;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.96);
+      }
+
+      input:focus {
+        outline: 3px solid rgba(11, 114, 133, 0.18);
+        border-color: rgba(11, 114, 133, 0.7);
+      }
+
+      .button-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:focus {
+        outline: 3px solid rgba(11, 114, 133, 0.2);
+      }
+
+      .primary {
+        color: white;
+        background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+        box-shadow: 0 14px 28px rgba(11, 114, 133, 0.22);
+      }
+
+      .secondary {
+        color: var(--ink);
+        background: rgba(21, 32, 40, 0.08);
+      }
+
+      .result-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 20px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(11, 114, 133, 0.12), rgba(255, 255, 255, 0.8));
+      }
+
+      #result-area {
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .history-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .history-head p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      #history-log {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--ink);
+      }
+
+      #history-log li + li {
+        margin-top: 8px;
+      }
+
+      .status {
+        min-height: 1.5em;
+        margin-top: 10px;
+        color: #8a2d2d;
+        font-weight: 700;
+      }
+
+      @media (max-width: 640px) {
+        .hero,
+        .content {
+          padding: 20px;
+        }
+
+        .input-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .result-line {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      main {
+        padding-bottom: 32px;
+      }
+
     </style>
   </head>
-  <body class="d-flex flex-column h-100">
-    <main role="main" class="flex-shrink-0">
-      <div id="calc">
-        <div>
-          Operand 1: <input id="in-op1" v-model="op1" />
-          Operand 2: <input id="in-op2" v-model="op2" />
+  <body>
+    <main>
+      <section class="calculator-shell" aria-labelledby="calculator-title">
+        <header class="hero">
+          <p class="eyebrow">Calculator App</p>
+          <h1 id="calculator-title">A small, direct calculator UI.</h1>
+          <p class="subtext">Enter two operands, call the API, and keep a visible history of the requests and responses.</p>
+        </header>
+
+        <div id="calc" class="content">
+          <div class="controls">
+            <div class="input-grid">
+              <div>
+                <label for="in-op1">Operand 1</label>
+                <input id="in-op1" value="1" />
+              </div>
+              <div>
+                <label for="in-op2">Operand 2</label>
+                <input id="in-op2" value="2" />
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button id="button-add" class="primary" type="button">Add</button>
+              <button id="button-substract" class="secondary" type="button">Subtract</button>
+            </div>
+            <div id="status-message" class="status" aria-live="polite"></div>
+          </div>
+
+          <div class="panel">
+            <div class="result-line">
+              <div>
+                <p class="eyebrow" style="margin-bottom: 4px;">Result</p>
+                <div id="result-area">Result: </div>
+              </div>
+              <p class="subtext" style="margin: 0; max-width: 24ch;">Responses are appended to the history below.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="history-head">
+              <div>
+                <p class="eyebrow" style="margin-bottom: 4px;">History</p>
+                <p>Recent API calls are listed in order.</p>
+              </div>
+            </div>
+            <ul id="history-log"></ul>
+          </div>
         </div>
-        <div>
-          <button id="button-add" v-on:click="add()">+</button>
-          <button id="button-substract" v-on:click="substract()">-</button>
-        </div>
-        <div id="result-area">Result: {{ result  }}</div>
-        <div>
-          History:
-          <ul id="history-log">
-            <li v-for="entry in outputLog">{{ entry }}</li>
-          </ul>
-        </div>
-      </div>
+      </section>
     </main>
+
     <script>
-      
-      var calc = new Vue({
-        el: "#calc",
-        data: {
-          outputLog: [],
-          op1: "1",
-          op2: "2",
-          result: ""
-        },
-        methods: {
-          add: function() {
-            this.apiCall('add', this.op1, this.op2);
-          },
-          substract: function() {
-            this.apiCall('substract', this.op1, this.op2);
-          },
-          apiCall: function(func, op1, op2) {
-            var url = `${baseUrl}/calc/${func}/${op1}/${op2}`;
-            axios
-              .get(url)
-              .then(response => {
-                var entry = `GET ${url} (${response.statusText})`;
-                if (!!response.data) {
-                  entry = entry + ": " + response.data;
-                }
-                this.outputLog.push(entry);
-                this.result = response.data;
-              })
-              .catch(e => {
-                this.outputLog.push(e);
-              });
-          }
+      (function() {
+        var op1Input = document.getElementById("in-op1");
+        var op2Input = document.getElementById("in-op2");
+        var addButton = document.getElementById("button-add");
+        var subtractButton = document.getElementById("button-substract");
+        var resultArea = document.getElementById("result-area");
+        var historyLog = document.getElementById("history-log");
+        var statusMessage = document.getElementById("status-message");
+
+        function pushHistory(entry) {
+          var item = document.createElement("li");
+          item.textContent = entry;
+          historyLog.appendChild(item);
         }
-      });
+
+        function setStatus(message) {
+          statusMessage.textContent = message;
+        }
+
+        function renderResult(value) {
+          resultArea.textContent = "Result: " + value;
+        }
+
+        function callApi(operation) {
+          var url = baseUrl + "/" + operation + "/" + op1Input.value + "/" + op2Input.value;
+
+          setStatus("Requesting " + operation + "...");
+
+          fetch(url)
+            .then(function(response) {
+              return response.text().then(function(body) {
+                return {
+                  ok: response.ok,
+                  statusText: response.statusText,
+                  body: body,
+                  status: response.status
+                };
+              });
+            })
+            .then(function(result) {
+              var entry = "GET " + url + " (" + result.statusText + ")";
+
+              if (result.body) {
+                entry += ": " + result.body;
+              }
+
+              pushHistory(entry);
+
+              if (result.ok) {
+                renderResult(result.body);
+                setStatus("Operation completed.");
+              } else {
+                renderResult("");
+                setStatus("Request failed with status " + result.status + ".");
+              }
+            })
+            .catch(function(error) {
+              pushHistory(String(error));
+              setStatus("Request could not be completed.");
+            });
+        }
+
+        addButton.addEventListener("click", function() {
+          callApi("add");
+        });
+
+        subtractButton.addEventListener("click", function() {
+          callApi("substract");
+        });
+      }());
     </script>
   </body>
 </html>
