@@ -1,8 +1,5 @@
 import app
-
-
-class InvalidPermissions(Exception):
-    pass
+import math
 
 
 class Calculator:
@@ -15,8 +12,9 @@ class Calculator:
         return x - y
 
     def multiply(self, x, y):
+        # Mantiene la validacion de permisos junto a la operacion protegida.
         if not app.util.validate_permissions(f"{x} * {y}", "user1"):
-            raise InvalidPermissions('User has no permissions')
+            raise TypeError("User has no permissions")
 
         self.check_types(x, y)
         return x * y
@@ -32,9 +30,32 @@ class Calculator:
         self.check_types(x, y)
         return x ** y
 
+    def square_root(self, x):
+        self.check_type(x)
+        if x < 0:
+            raise TypeError("Square root is not possible for negative numbers")
+
+        return math.sqrt(x)
+
+    def log10(self, x):
+        self.check_type(x)
+        if x <= 0:
+            raise TypeError("Logarithm base 10 is only possible for positive numbers")
+
+        return math.log10(x)
+
     def check_types(self, x, y):
-        if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
-            raise TypeError("Parameters must be numbers")
+        self.check_type(x)
+        self.check_type(y)
+
+    def check_type(self, x):
+        # bool se rechaza de forma explicita, aunque herede de int.
+        if isinstance(x, bool) or not isinstance(x, (int, float)):
+            raise TypeError("Parameter must be a number")
+
+        # Evita que valores NaN/Inf se propaguen en las operaciones.
+        if not math.isfinite(x):
+            raise TypeError("Parameter must be a finite number")
 
 
 if __name__ == "__main__":  # pragma: no cover

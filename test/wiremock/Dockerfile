@@ -1,8 +1,12 @@
-FROM openjdk:8-jre
+FROM eclipse-temurin:8-jre
 
 # based on https://github.com/rodolpheche/wiremock-docker/blob/master/Dockerfile
 
 ENV WIREMOCK_VERSION 2.27.2
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends wget ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 # grab wiremock standalone jar
 RUN mkdir -p /var/wiremock/lib/ \

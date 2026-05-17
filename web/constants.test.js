@@ -1,1 +1,1 @@
-var baseUrl = "http://apiserver:5000";
+var baseUrl = "/calc";

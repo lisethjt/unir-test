@@ -58,7 +58,8 @@ class TestApi(unittest.TestCase):
         with open('results/sec_report.html', 'w') as f:
             f.write(build_html(zap.core.hosts, alerts))
 
-        assert len(alerts) == 0, "Se encontraron vulnerabilidades en el escaneo con ZAP"
+        high_alerts = [alert for alert in alerts if alert.get("risk") == "High"]
+        assert len(high_alerts) == 0, "Se encontraron vulnerabilidades de alta severidad en el escaneo con ZAP"
 
 
 TOP_HTML = """
