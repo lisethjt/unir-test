@@ -1,1 +1,1 @@
-var baseUrl = "http://apiwiremock:8080";
+var baseUrl = "/calc";
