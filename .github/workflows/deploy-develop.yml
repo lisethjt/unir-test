@@ -75,5 +75,4 @@ jobs:
           context: ./flat-build-context
           file: ./flat-build-context/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository_owner}}/unir-test-tfm:${{ github.sha }}
-       
+          tags: ghcr.io/${{ github.repository_owner}}/unir-test-tfm:${{ github.sha }}       
