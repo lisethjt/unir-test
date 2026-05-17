@@ -31,13 +31,13 @@ jobs:
         with:
           python-version: "3.10"
           cache: "pip"
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: requires
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install -r requires
+          pip install coverage
 
       - name: Create results folder
         run: mkdir -p results
@@ -46,12 +46,9 @@ jobs:
         env:
           PYTHONPATH: .
         run: |
-          pytest test/unit \
-            -m unit \
-            --cov=app \
-            --cov-report=xml:results/coverage.xml \
-            --cov-report=html:results/coverage \
-            --junitxml=results/unit_result.xml
+          python -m coverage run --source=app -m unittest discover -s test/unit -p "*_test.py"
+          python -m coverage xml -o results/coverage.xml
+          python -m coverage html -d results/coverage
 
       - name: Upload unit test artifacts
         if: always()
@@ -61,7 +58,6 @@ jobs:
           path: |
             results/coverage.xml
             results/coverage/
-            results/unit_result.xml
 
       - name: Build summary
         run: echo "Python pipeline completed successfully"
