@@ -12,7 +12,6 @@ jobs:
 
     steps:
        - run: echo ${{ github.event.client_payload.checksum }}
-
        - name: Retrieve Payload
          run: |
            echo ${{ github.event.client_payload.checksum }}
