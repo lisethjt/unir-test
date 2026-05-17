@@ -93,3 +93,12 @@ jobs:
       - name: Push merged changes
         run: |
           git push origin develop
+
+      - name: trigger deploy artifact
+        if: success()
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: build-and-publish-docker
+          client-payload: '{"ref": "${{ github.event.pull_request.head.ref }}", "checksum": "${{ github.event.pull_request.head.sha }}"}'
