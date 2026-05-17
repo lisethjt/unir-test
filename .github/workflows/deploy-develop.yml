@@ -12,7 +12,6 @@ jobs:
 
     steps:
        - run: echo ${{ github.event.client_payload.checksum }}
-
        - name: Retrieve Payload
          run: |
            echo ${{ github.event.client_payload.checksum }}
@@ -23,15 +22,17 @@ jobs:
           echo print the current directory show files
           ls -la 
           echo preparing docker build context
-          cp .docker/Dockerfile /tmp/Dockerfile          
-          ls -la /tmp
+          mkdir -p /tmp/dockerBuildContext
+          cp .docker/Dockerfile /tmp/dockerBuildContext/Dockerfile
+          cp requires /tmp/dockerBuildContext/requires
+          ls -la /tmp/dockerBuildContext
 
        - name: Upload artifact       
          uses: actions/upload-artifact@v4
          with:
           name: dockerBuildContext
           path: |
-            /tmp/Dockerfile
+            /tmp/dockerBuildContext/
             
   docker-job:
     needs: dowlonad-artifact-job
@@ -59,11 +60,20 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R dockerBuildContext
 
+      - name: Prepare flat build context
+        run: |
+          mkdir -p flat-build-context
+          DOCKERFILE_PATH=$(find dockerBuildContext -type f -name Dockerfile | head -n 1)
+          REQUIRES_PATH=$(find dockerBuildContext -type f -name requires | head -n 1)
+          cp "$DOCKERFILE_PATH" flat-build-context/Dockerfile
+          cp "$REQUIRES_PATH" flat-build-context/requires
+          ls -la flat-build-context
+
       - name: Build and push image using action
         uses: docker/build-push-action@v4
         with:
-          context: ./dockerBuildContext
-          file: ./dockerBuildContext/Dockerfile
+          context: ./flat-build-context
+          file: ./flat-build-context/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository_owner}}/unir-test-tfm:${{ github.sha }}
        
