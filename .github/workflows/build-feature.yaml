@@ -48,6 +48,7 @@ jobs:
           python -m coverage run --source=app -m unittest discover -s test/unit -p "*_test.py"
           python -m coverage xml -o results/coverage.xml
           python -m coverage html -d results/coverage
+          python -m coverage report --fail-under=30 > results/unit-tests.html
 
       - name: Upload unit test artifacts
         if: always()
@@ -56,8 +57,7 @@ jobs:
           name: unit-test-results
           path: |
             results/coverage.xml
-            results/coverage/
-            results/unit-tests.xml
+            results/coverage/            
             results/unit-tests.html
 
 
@@ -97,11 +97,11 @@ jobs:
         run: |
           git push origin develop
 
-      - name: trigger deploy artifact
-        if: success()
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          event-type: build-and-publish-docker
-          client-payload: '{"ref": "${{ github.event.pull_request.head.ref }}", "checksum": "${{ github.event.pull_request.head.sha }}"}'
+      # - name: trigger deploy artifact
+      #   if: success()
+      #   uses: peter-evans/repository-dispatch@v2
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     repository: ${{ github.repository }}
+      #     event-type: build-and-publish-docker
+      #     client-payload: '{"ref": "${{ github.event.pull_request.head.ref }}", "checksum": "${{ github.event.pull_request.head.sha }}"}'
