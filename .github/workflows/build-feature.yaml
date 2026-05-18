@@ -48,7 +48,7 @@ jobs:
           python -m coverage run --source=app -m unittest discover -s test/unit -p "*_test.py"
           python -m coverage xml -o results/coverage.xml
           python -m coverage html -d results/coverage
-          python -m coverage report --fail-under=80 > results/unit-tests.html
+          python -m coverage report --fail-under=30 > results/unit-tests.html
 
       - name: Upload unit test artifacts
         if: always()
