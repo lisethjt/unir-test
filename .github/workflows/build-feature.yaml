@@ -57,6 +57,9 @@ jobs:
           path: |
             results/coverage.xml
             results/coverage/
+            results/unit-tests.xml
+            results/unit-tests.html
+
 
       - name: Build summary
         run: echo "Python pipeline completed successfully"
